@@ -1,0 +1,3 @@
+float64 pressure
+float64 depth
+float64 temperature
