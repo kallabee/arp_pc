@@ -72,7 +72,8 @@ double limit(double angle, double angle_limit, double &new_angle)
 class CamAngleSpeedConverter
 {
 public:
-  CamAngleSpeedConverter(double pan_speed_coef, double tilt_speed_coef, double max_pan, double max_tilt) : pan(0), tilt(0), pan_speed_coef(pan_speed_coef), tilt_speed_coef(tilt_speed_coef), max_pan(max_pan), max_tilt(max_tilt)
+  CamAngleSpeedConverter(double pan_speed_coef, double tilt_speed_coef, double max_pan, double max_tilt)
+      : pan(0), tilt(0), pan_speed_coef(pan_speed_coef), tilt_speed_coef(tilt_speed_coef), max_pan(max_pan), max_tilt(max_tilt)
   {
   }
 
@@ -247,6 +248,7 @@ private:
   {
     static dead_time_manager dtm_ir(std::chrono::milliseconds(200));
     static dead_time_manager dtm_pt(std::chrono::milliseconds(200));
+    static bool ir_cut_state = false;
     bool button_pressed = false;
     // printf("inState.buttonsA %02x, inState.buttonsAndDpad %02x\n", inState.buttonsA, inState.buttonsAndDpad);
 
@@ -256,17 +258,14 @@ private:
       bool dummy;
       if (!dtm_ir.is_in_dead_time(dummy))
       {
-        ir_cut++;
-        if (ir_cut >= 2)
-        {
-          ir_cut = 0;
-        }
+        ir_cut_state = !ir_cut_state;
         button_pressed = true;
         dtm_ir.start();
         printf("IR cut filter mode is changed to %d\n", ir_cut);
       }
       printf("Share button is pressed.\n");
     }
+    ir_cut = ir_cut_state ? 1 : 0;
 
     // Pan & Tilt
     if (inState.buttonsA & DS5W_ISTATE_BTN_A_MENU)
@@ -765,7 +764,8 @@ private:
     if (cam_button_pressed)
     {
       cam_act_pub_->publish(cam_act);
-      RCLCPP_INFO(this->get_logger(), "CamAct: pan, tilt, zoom, focus = %+.2f, %+.2f, %.2f, %.2f", cam_act.pan, cam_act.tilt, cam_act.zoom, cam_act.focus);
+      RCLCPP_INFO(this->get_logger(), "CamAct: pan, tilt, zoom, focus, ir_cut = %+.2f, %+.2f, %.2f, %.2f, %d",
+                  cam_act.pan, cam_act.tilt, cam_act.zoom, cam_act.focus, cam_act.ir_cut);
     }
   }
 
