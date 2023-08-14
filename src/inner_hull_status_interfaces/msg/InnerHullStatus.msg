@@ -1,0 +1,11 @@
+bool water_leak_1
+float32 water_leak_1_volt
+bool water_leak_2
+float32 water_leak_2_volt
+float32 temperature_1
+float32 temperature_2
+float32 temperature_3
+float32 barometric_pressure
+float32 humidity
+float32 rpi_temperature
+float32 rpi_fan_speed
